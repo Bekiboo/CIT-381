@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
 	import Tesseract from 'tesseract.js';
 
 	let text = 'Loading...';
@@ -8,8 +6,13 @@
 	let progress: number;
 	let isDone = false;
 
-	onMount(() => {
-		Tesseract.recognize('https://i.ibb.co/hfLCpJC/Accueil-Compte-ameli-Google-Chrome.jpg', 'eng', {
+	const analyze = (e: Event) => {
+		const target = e.target as HTMLInputElement;
+		let file;
+		if (target.files) {
+			file = target.files[0];
+		}
+		Tesseract.recognize(file, 'eng', {
 			logger: (m) => {
 				status = m.status;
 				progress = m.progress;
@@ -22,7 +25,7 @@
 			progress = 1;
 			isDone = true;
 		});
-	});
+	};
 </script>
 
 <div class="progress-wrap progress">
@@ -32,6 +35,7 @@
 
 <div class="container">
 	<h1>OCR</h1>
+	<input type="file" on:change={(e) => analyze(e)} />
 	<p>{text}</p>
 </div>
 
