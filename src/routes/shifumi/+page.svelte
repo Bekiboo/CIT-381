@@ -45,14 +45,6 @@
 		round++;
 	};
 
-	const updateWinner = () => {
-		if (playerScore === 5) {
-			winner = 'You win the game!';
-		} else if (computerScore === 5) {
-			winner = 'You lose the game!';
-		}
-	};
-
 	const resetGame = () => {
 		playerScore = 0;
 		computerScore = 0;
@@ -66,7 +58,6 @@
 		const result = playRound(playerChoice, computerChoice);
 		updateScore(result);
 		updateRound();
-		updateWinner();
 	};
 </script>
 
