@@ -5,30 +5,37 @@
 	type Round = {
 		playerChoice: Weapon;
 		computerChoice: Weapon;
-		result: 'You win' | 'You lose' | 'Tie';
+		result: Result;
 	};
 
+	type Result = 'You win' | 'You lose' | 'Tie';
+	let result: Result;
+
 	const MAX_LOSING_ROUNDS_BEFORE_STRATEGY_CHANGE = 3;
+	let turnsSinceLastComputerWin = 0;
 
 	let rounds: Round[] = [];
 	$: round = rounds.length + 1;
 
 	const strategies = [
 		() => {
-			return weapons[Math.floor(Math.random() * weapons.length)];
+			return weapons[0];
 		},
 		() => {
-			return weapons[Math.floor(Math.random() * weapons.length)];
+			return weapons[1];
 		},
 		() => {
-			return weapons[Math.floor(Math.random() * weapons.length)];
+			return weapons[2];
+		},
+		() => {
+			return weapons[3];
+		},
+		() => {
+			return weapons[4];
 		}
 	];
 
-	let previousStrategyIndex = -1;
 	let currentStrategyIndex = -1;
-
-	let strategy: '1' | '2' | '3' = '1';
 
 	const winningCombinations: Record<string, string[]> = {
 		rock: ['scissors', 'lizard'],
@@ -40,7 +47,6 @@
 
 	type Weapon = 'rock' | 'paper' | 'scissors' | 'lizard' | 'spock';
 	const weapons: Weapon[] = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
-	let playerChoice: Weapon;
 	let computerChoice: Weapon;
 
 	const computerPlay = () => {
@@ -49,39 +55,24 @@
 			return weapons[Math.floor(Math.random() * weapons.length)];
 		}
 
-		// Second round, go random
-		if (rounds.length === 1) {
-			return weapons[Math.floor(Math.random() * weapons.length)];
-		}
-
-		// Third round, go random
-		if (rounds.length === 2) {
-			return weapons[Math.floor(Math.random() * weapons.length)];
-		}
-
-		if (rounds.length >= MAX_LOSING_ROUNDS_BEFORE_STRATEGY_CHANGE) {
+		if (turnsSinceLastComputerWin >= MAX_LOSING_ROUNDS_BEFORE_STRATEGY_CHANGE) {
 			// get random strategy excluding the one already selected
-			const availableStrategies = strategies.filter((s) => s !== strategy);
-
-			// select a random strategy
 			function selectRandomStrategy() {
-				previousStrategyIndex = currentStrategyIndex;
-				while (currentStrategyIndex === previousStrategyIndex) {
-					currentStrategyIndex = Math.floor(Math.random() * strategies.length);
+				const randomStrategyIndex = Math.floor(Math.random() * strategies.length);
+				if (randomStrategyIndex === currentStrategyIndex) {
+					return selectRandomStrategy();
+				} else {
+					return randomStrategyIndex;
 				}
-				const selectedStrategy = strategies[currentStrategyIndex];
-				console.log(selectedStrategy());
-				selectedStrategy();
 			}
+		}
 
-			// Step 3: Use a condition to trigger the function selection
-			function checkCondition() {
-				// Example condition: select a new function when a random number is greater than 0.5
-				const randomNumber = Math.random();
-				if (randomNumber > 0.5) {
-					selectRandomStrategy();
-				}
-			}
+		// If we have a strategy, use it
+		if (currentStrategyIndex !== -1) {
+			return strategies[currentStrategyIndex]();
+		} else {
+			// Otherwise, go random
+			return weapons[Math.floor(Math.random() * weapons.length)];
 		}
 	};
 
@@ -95,10 +86,6 @@
 		}
 	};
 
-	const updateRound = () => {
-		round++;
-	};
-
 	const resetGame = () => {
 		playerScore = 0;
 		computerScore = 0;
@@ -106,16 +93,30 @@
 		rounds = [];
 	};
 
+	const updateScore = (result: Result) => {
+		if (result === 'You win') {
+			playerScore++;
+		} else if (result === 'You lose') {
+			computerScore++;
+		}
+	};
+
 	const playGame = (playerChoice: Weapon) => {
 		computerChoice = computerPlay();
-		const result = playRound(playerChoice, computerChoice);
+		result = playRound(playerChoice, computerChoice);
 		rounds.push({ playerChoice, computerChoice, result });
-		// updateScore(result);
-		updateRound();
+		rounds = rounds;
+		updateScore(result);
+		if (result === 'You win') {
+			turnsSinceLastComputerWin++;
+		} else {
+			turnsSinceLastComputerWin = 0;
+		}
 	};
 </script>
 
-<div class="bg-[#1D6EB0] h-screen text-white">
+<div class="bg-[#1D6EB0] h-screen text-white pt-24">
+	{turnsSinceLastComputerWin}
 	<h1 class="text-2xl font-bold uppercase text-center mb-8">Rock Paper Scissors Lizard Spock</h1>
 	<div class="flex flex-col items-center">
 		<h2 class="font-semibold text-xl">Choose your weapon</h2>
@@ -130,14 +131,17 @@
 	</div>
 	<div class="flex flex-col items-center">
 		<h2>Round {round}</h2>
+		{#if rounds.length > 0}
+			<div class="text-center">
+				<h3>Player: {rounds[rounds.length - 1]?.playerChoice}</h3>
+				<h3>Computer: {computerChoice}</h3>
+				<h2 class="text-xl">{result}</h2>
+			</div>
+		{/if}
 		<div class="score color-red-500">
-			<h3>Player: {playerScore}</h3>
-			<h3>Computer: {computerScore}</h3>
-		</div>
-		<div class="choices" />
-		<div class="results">
-			<h3>Player: {playerChoice}</h3>
-			<h3>Computer: {computerChoice}</h3>
+			<h3 class="my-4">
+				Player <span class="font-bold text-2xl px-4">{playerScore} - {computerScore}</span> Computer
+			</h3>
 		</div>
 		<button class="bg-red-700 w-24 rounded-md font-bold" on:click={() => resetGame()}>Reset</button>
 	</div>
