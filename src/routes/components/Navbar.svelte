@@ -10,8 +10,7 @@
 
 	const LINKS = [
 		{ name: 'OCR', href: '/OCR' },
-		{ name: 'Shifumi', href: '/shifumi' },
-		{ name: 'TensorFlow', href: '/tensorflow' }
+		{ name: 'Shifumi', href: '/shifumi' }
 	];
 
 	$: {
@@ -22,8 +21,7 @@
 	}
 </script>
 
-{barWidth}
-<nav class="flex justify-between items-center bg-slate-300 p-2">
+<nav class="absolute w-screen h-16 flex justify-between items-center bg-slate-300 p-2">
 	<a class="logo-link" href="/">
 		CIT-381
 		<h1>Julien Connault</h1>
@@ -32,16 +30,20 @@
 	<div class="relative">
 		<!-- Top Bar -->
 		<span
-			class="absolute h-2 bg-orange-500"
+			class="absolute h-1 -top-1 bg-orange-500 duration-300 ease-in-out"
 			style="width: {barWidth}px; translate: {barTranslate}px;"
 			aria-hidden="true"
 		/>
 
 		<!-- Bottom Bar -->
-		<span class="" style="width: {barWidth}px; translate: {barTranslate}px;" aria-hidden="true" />
+		<span
+			class="absolute h-1 -bottom-1 bg-orange-500 duration-300 ease-in-out"
+			style="width: {barWidth}px; translate: {barTranslate}px;"
+			aria-hidden="true"
+		/>
 
 		<!-- Links -->
-		<div class="links-wrapper" bind:this={linksWrapper}>
+		<div class="flex gap-5 font-bold" bind:this={linksWrapper}>
 			{#each LINKS as link}
 				{#if link.href === currentPage}
 					<a
@@ -57,3 +59,13 @@
 		</div>
 	</div>
 </nav>
+
+<style>
+	a {
+		display: inline-block;
+	}
+
+	.active {
+		color: #f80;
+	}
+</style>

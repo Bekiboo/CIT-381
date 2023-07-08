@@ -28,15 +28,17 @@
 	};
 </script>
 
-<div class="progress-wrap progress">
-	<div style:width={progress * 100 + '%'} class="progress-bar progress" />
-	<p>{status}</p>
-</div>
+<div class="pt-24 flex flex-col items-center">
+	<div class="progress-wrap h-12 w-4/5 rounded-2xl">
+		<div style:width={progress * 100 + '%'} class="progress-bar progress h-full" />
+		<p>{status}</p>
+	</div>
 
-<div class="container">
-	<h1>OCR</h1>
-	<input type="file" on:change={(e) => analyze(e)} />
-	<p>{text}</p>
+	<div class="container">
+		<h1>Optical Character Recognition</h1>
+		<input type="file" on:change={(e) => analyze(e)} />
+		<p>{text}</p>
+	</div>
 </div>
 
 <style>
@@ -47,10 +49,6 @@
 		justify-content: center;
 	}
 
-	.progress {
-		width: 100%;
-		height: 50px;
-	}
 	.progress-wrap {
 		background: #ddd;
 		margin: 20px 0;
