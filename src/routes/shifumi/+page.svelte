@@ -15,13 +15,13 @@
 
 	const strategies = [
 		() => {
-			console.log('Function 1');
+			return weapons[Math.floor(Math.random() * weapons.length)];
 		},
 		() => {
-			console.log('Function 2');
+			return weapons[Math.floor(Math.random() * weapons.length)];
 		},
 		() => {
-			console.log('Function 3');
+			return weapons[Math.floor(Math.random() * weapons.length)];
 		}
 	];
 
@@ -49,7 +49,17 @@
 			return weapons[Math.floor(Math.random() * weapons.length)];
 		}
 
-		if (rounds.length > MAX_LOSING_ROUNDS_BEFORE_STRATEGY_CHANGE) {
+		// Second round, go random
+		if (rounds.length === 1) {
+			return weapons[Math.floor(Math.random() * weapons.length)];
+		}
+
+		// Third round, go random
+		if (rounds.length === 2) {
+			return weapons[Math.floor(Math.random() * weapons.length)];
+		}
+
+		if (rounds.length >= MAX_LOSING_ROUNDS_BEFORE_STRATEGY_CHANGE) {
 			// get random strategy excluding the one already selected
 			const availableStrategies = strategies.filter((s) => s !== strategy);
 
@@ -60,6 +70,7 @@
 					currentStrategyIndex = Math.floor(Math.random() * strategies.length);
 				}
 				const selectedStrategy = strategies[currentStrategyIndex];
+				console.log(selectedStrategy());
 				selectedStrategy();
 			}
 
