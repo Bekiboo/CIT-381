@@ -1,16 +1,9 @@
 <script lang="ts">
 	import { strategies, weapons } from './strategies'
-	import type { Weapon } from './strategies'
+	import type { Weapon, Result, Round } from './strategies'
 	let playerScore = 0
 	let computerScore = 0
 
-	type Round = {
-		playerChoice: Weapon
-		computerChoice: Weapon
-		result: Result
-	}
-
-	type Result = 'Player wins' | 'Computer wins' | 'Tie'
 	let result: Result
 
 	const MAX_LOSING_ROUNDS_BEFORE_STRATEGY_CHANGE = 3
@@ -19,7 +12,9 @@
 	let rounds: Round[] = []
 	$: round = rounds.length + 1
 
-	let currentStrategyIndex = -1
+	let currentStrategyIndex = 0
+
+	const stratgyNames = ['Go Random', 'Win Stay, Lose Shift', 'Analyse Opponent History']
 
 	const winningCombinations: Record<string, string[]> = {
 		rock: ['scissors', 'lizard'],
@@ -32,11 +27,6 @@
 	let computerChoice: Weapon
 
 	const computerPlay = () => {
-		// First round, go random
-		if (rounds.length === 0) {
-			return weapons[Math.floor(Math.random() * weapons.length)]
-		}
-
 		if (turnsSinceLastComputerWin >= MAX_LOSING_ROUNDS_BEFORE_STRATEGY_CHANGE) {
 			// get random strategy excluding the one already selected
 			function selectRandomStrategy() {
@@ -50,14 +40,13 @@
 			currentStrategyIndex = selectRandomStrategy()
 		}
 
-		// If we have a strategy, use it
-		if (currentStrategyIndex !== -1) {
-			console.log('Using strategy: ', currentStrategyIndex)
-			return strategies[currentStrategyIndex](rounds)
-		} else {
-			console.log('Using random')
-			// Otherwise, go random
-			return weapons[Math.floor(Math.random() * weapons.length)]
+		return strategies[currentStrategyIndex](rounds)
+	}
+
+	const switchStrategy = () => {
+		currentStrategyIndex++
+		if (currentStrategyIndex >= strategies.length) {
+			currentStrategyIndex = 0
 		}
 	}
 
@@ -76,6 +65,7 @@
 		computerScore = 0
 		round = 0
 		rounds = []
+		currentStrategyIndex = 0
 	}
 
 	const updateScore = (result: Result) => {
@@ -139,13 +129,18 @@
 			</p>
 			<p>
 				Current Strategy:
-				<span class="font-bold"
-					>{currentStrategyIndex === -1 ? 'Random' : currentStrategyIndex}</span
-				>
+				<span class="font-bold">{stratgyNames[currentStrategyIndex]}</span>
 			</p>
 		</div>
-		<button class="bg-red-700 w-24 rounded-md font-bold mt-4" on:click={() => resetGame()}
-			>Reset</button
-		>
+		<div class="flex gap-4">
+			<button
+				class="bg-red-700 hover:bg-red-500 duration-300 w-24 rounded-md font-bold mt-4"
+				on:click={() => resetGame()}>Reset</button
+			>
+			<button
+				class="bg-blue-800 hover:bg-blue-500 duration-300 w-24 rounded-md font-bold mt-4 py-1"
+				on:click={switchStrategy}>Switch Strategy</button
+			>
+		</div>
 	</div>
 </div>
